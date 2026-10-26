@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build, vet and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then echo "gofmt needed:"; echo "$unformatted"; exit 1; fi
+      - run: go build ./...
+      - run: go vet ./...
+      # Every resource's create, read, update, delete and import against a fake of the API,
+      # the plan-time validators, and the examples checked against the schema.
+      - run: go test -race ./...
+
+  terraform:
+    name: End to end under the Terraform CLI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      # Builds the provider, runs a real `terraform apply` against a stateful fake of the API,
+      # then plans again and expects nothing to change: Terraform's own consistency rules,
+      # drift, import and destroy.
+      - name: Run
+        run: |
+          export FORUMULATE_E2E_TERRAFORM="$(command -v terraform)"
+          go test -count=1 -v -run TestProviderUnderRealTerraform ./internal/e2e
+
+  docs:
+    name: Generated docs are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      - run: go generate ./...
+      - name: docs/ must match the schema and the examples
+        run: |
+          git diff --exit-code -- docs examples || {
+            echo "docs or examples changed after 'go generate ./...': commit the result."
+            exit 1
+          }

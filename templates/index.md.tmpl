@@ -1,0 +1,50 @@
+---
+page_title: "Provider: Forumulate"
+description: |-
+  Manage a Forumulate organization as code: spaces, pages, forum categories, sites, domains, webhooks, settings, connectors and status pages, or the whole site at once as a manifest.
+---
+
+# Forumulate Provider
+
+[Forumulate](https://forumulate.com) is one platform for docs, forum and blog. This provider manages an organization on it
+through the same REST API the console and the CLI use, authenticated with a personal access token, so it can do exactly what
+the person holding the token can.
+
+Two ways to use it, and they mix:
+
+- **Resource by resource.** `forumulate_space`, `forumulate_collection`, `forumulate_page`, `forumulate_forum_category`,
+  `forumulate_domain`, `forumulate_webhook`, `forumulate_site` and the rest, each with drift detection and import.
+- **The whole site as one document.** `forumulate_site_manifest` sends a `version: 2` manifest (the file `forumulate plan`
+  and `forumulate apply` read) to the API. `terraform plan` shows the API's own dry run, step by step; `terraform apply` applies it.
+
+## Authentication
+
+Create a personal access token in the console (Account, Tokens) and export it with your organization's id. The token needs
+the `write` scope to change anything, and the capabilities of the person who made it decide what it may do. Tokens expire (in
+90 days unless you choose otherwise, and in a year at most): rotate the one in your pipeline before then.
+
+```shell
+export FORUMULATE_TOKEN="fp_..."        # a personal access token
+export FORUMULATE_ORG_ID="..."          # the organization's id or slug
+export FORUMULATE_API_URL="..."         # optional; defaults to https://forumulate.com/api
+```
+
+Every request pins `Forumulate-Version: 2027-02-01`: a taken page slug is an error rather than a silent suffix, and the API
+refuses a field it does not know rather than ignoring it, so a typo in a configuration fails instead of being dropped.
+
+## Example usage
+
+{{tffile "examples/provider/provider.tf"}}
+
+## How the provider treats your configuration
+
+- **Validation at plan time.** Names, slugs, enums, lengths and counts are checked against the API's own rules before anything is
+  sent. API errors that remain are shown on the attribute they name, with the API's hint and request id.
+- **Drift is detected where the API can tell.** A page edited in the studio, a collection renamed, a webhook paused, a setting
+  changed all show up in the next `terraform plan`. For documents held as JSON (`*_json`) only the keys you declare are compared,
+  so settings another tool manages are left alone.
+- **Secrets are write-only.** A webhook's signing secret is shown by the API once and kept, sensitive, in state; connector
+  secrets are never returned by the API and are re-sent on change only.
+- **Destroying is reversible by default.** A space or page goes to the trash; `destroy_on_delete` makes it permanent.
+
+{{ .SchemaMarkdown | trimspace }}

@@ -1,0 +1,1 @@
+terraform import forumulate_status_incident_template.db_failover STATUS_SPACE_ID/TEMPLATE_ID

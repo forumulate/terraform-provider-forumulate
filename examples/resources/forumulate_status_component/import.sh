@@ -1,0 +1,1 @@
+terraform import forumulate_status_component.api STATUS_SPACE_ID/COMPONENT_ID

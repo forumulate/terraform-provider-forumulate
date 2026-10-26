@@ -1,0 +1,1 @@
+terraform import forumulate_translation_override.sign_in_es es/reader.sign_in

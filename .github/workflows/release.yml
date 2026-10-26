@@ -1,0 +1,51 @@
+# Releases the provider to GitHub when a version tag is pushed. The Terraform
+# Registry watches this repository's releases: it needs the zips, the
+# SHA256SUMS file, its detached signature and the manifest this builds (see
+# .goreleaser.yml), signed with the GPG key registered on the registry account.
+#
+# Set up once, in the repository's settings:
+#   secrets.GPG_PRIVATE_KEY   the ASCII-armored private key registered on the registry
+#   secrets.PASSPHRASE        its passphrase
+# GITHUB_TOKEN is provided by Actions.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # goreleaser reads the tag history.
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      # Never release what does not pass: the same checks as the test workflow.
+      - name: Test
+        run: go vet ./... && go test ./...
+
+      - name: Import the signing key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: '~> v2'
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}

@@ -1,0 +1,1 @@
+terraform import forumulate_org_setting.typo_tolerance search.typo_tolerance

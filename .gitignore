@@ -1,0 +1,18 @@
+# Build output and release artifacts.
+/dist/
+/terraform-provider-forumulate
+/terraform-provider-forumulate_v*
+
+# Terraform working files from trying the examples.
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.rc
+.terraformrc
+/dist-dev/

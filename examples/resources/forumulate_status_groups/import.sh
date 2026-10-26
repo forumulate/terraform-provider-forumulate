@@ -1,0 +1,1 @@
+terraform import forumulate_status_groups.page STATUS_SPACE_ID
