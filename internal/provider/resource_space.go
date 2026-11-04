@@ -17,7 +17,7 @@ import (
 
 // SpaceTypes are the kinds of space the API creates (SPACE_TYPES in
 // packages/shared); `GET /space-types` is the live list.
-var SpaceTypes = []string{"DOCS", "FORUM", "BLOG", "ROADMAP", "CHANGELOG", "STATUS", "LEGAL", "FAQ", "CAREERS", "CONTACT", "EVENTS", "COURSES", "CUSTOM", "CONTENT", "ABOUT"}
+var SpaceTypes = []string{"DOCS", "FORUM", "BLOG", "ROADMAP", "CHANGELOG", "STATUS", "LEGAL", "FAQ", "CAREERS", "CONTACT", "EVENTS", "COURSES", "CUSTOM", "CONTENT", "ABOUT", "COMPARE"}
 
 type spaceModel struct {
 	ID               types.String `tfsdk:"id"`
