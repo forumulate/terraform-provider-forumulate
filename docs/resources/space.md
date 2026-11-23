@@ -59,7 +59,7 @@ resource "forumulate_space" "recipes" {
 
 - `name` (String) The space's name, 1 to 120 characters.
 - `slug` (String) The space's address segment (2 to 48 characters, lowercase letters, digits and hyphens). Cannot change; changing it replaces the space.
-- `type` (String) The space type. One of `DOCS`, `FORUM`, `BLOG`, `ROADMAP`, `CHANGELOG`, `STATUS`, `LEGAL`, `FAQ`, `CAREERS`, `CONTACT`, `EVENTS`, `COURSES`, `CUSTOM`, `CONTENT`, `ABOUT`. Cannot change; changing it replaces the space. `GET /space-types` describes each.
+- `type` (String) The space type. One of `DOCS`, `FORUM`, `BLOG`, `ROADMAP`, `CHANGELOG`, `STATUS`, `LEGAL`, `FAQ`, `CAREERS`, `CONTACT`, `EVENTS`, `COURSES`, `CUSTOM`, `CONTENT`, `ABOUT`, `COMPARE`, `DOWNLOADS`. Cannot change; changing it replaces the space. `GET /space-types` describes each.
 
 ### Optional
 
